@@ -1,14 +1,12 @@
 var express = require('express');
 var router = express.Router();
-var models = require('../models/index');
+var models = require('../models/index')
 const { Response } = require('../helpers/util')
 
 /* GET users listing. */
 router.get('/', async function (req, res, next) {
   try {
-    const data = await models.User.findAll({
-      include: models.Todo
-    })
+    const data = await models.Todo.findAll({})
     res.json(new Response(data))
   } catch (e) {
     res.status(500).json(new Response(e, false))
@@ -19,8 +17,8 @@ router.get('/', async function (req, res, next) {
 
 router.post('/', async function (req, res, next) {
   try {
-    const { username, name } = req.body
-    const data = await models.User.create({ username, name })
+    const { title, UserId } = req.body
+    const data = await models.Todo.create({ title, UserId })
     res.json(new Response(data))
   } catch (e) {
     res.status(500).json(new Response(e, false))
@@ -29,10 +27,10 @@ router.post('/', async function (req, res, next) {
 
 router.put('/:id', async function (req, res, next) {
   try {
-    const { username, name } = req.body
-    const data = await models.User.update({
-      username,
-      name
+    const { title, complete } = req.body
+    const data = await models.Todo.update({
+        title,
+        complete: JSON.parse(complete)
     }, {
       where: {
         id: req.params.id
@@ -40,14 +38,14 @@ router.put('/:id', async function (req, res, next) {
       returning: true,
       plain: true
     })
-    res.json(new Response(data[1]))
+    res.json(new Response(data[1]? data[1] : data))
   } catch (e) {
     res.status(500).json(new Response(e, false))
   }
 });
 router.delete('/:id', async function (req, res, next) {
   try {
-    const data = await models.User.destroy({
+    const data = await models.Todo.destroy({
       where: {
         id: req.params.id
       }
